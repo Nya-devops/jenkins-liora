@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: movie-db
+  labels:
+    app: movie-db
+spec:
+  serviceName: movie-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-db
+  template:
+    metadata:
+      labels:
+        app: movie-db
+    spec:
+      containers:
+        - image: postgres:12.1-alpine
+          name: movie-db
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-movie
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-movie
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-movie
+                  key: POSTGRES_DB
+          ports:
+            - containerPort: 5432     # from Postgred documentation
+              protocol: TCP
+          volumeMounts:
+            - name: moviedb-pvc
+              mountPath: /var/lib/postgresql/data/     
+  volumeClaimTemplates:
+  - metadata:
+      name: moviedb-pvc
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-db
+  labels:
+    app: movie-db
+spec:
+  ports:
+  - port: 5432
+    name: movie-db
+  clusterIP: None   # Headless
+  selector:
+    app: movie-db
