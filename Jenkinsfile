@@ -12,6 +12,7 @@ pipeline {
         stage("Build and Push"){
             steps{
                 script{
+                    echo "BRANCH_NAME is: ${env.BRANCH_NAME}"
                     echo 'building the docker images...'
                     sh "docker build -t ${DOCKERHUB_USER}/movie-service:1.0.0 ./movie-service"
                     sh "docker build -t ${DOCKERHUB_USER}/cast-service:1.0.0 ./cast-service"
@@ -70,11 +71,10 @@ pipeline {
                 }
             }
         }
-
         
         stage("Deploy to PROD"){
             when{
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main'}
             }
             input{
                 message "Press PROCEED to continue deployment to Production" 
