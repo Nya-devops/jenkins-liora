@@ -62,9 +62,9 @@ pipeline {
             }
         }
 
-        post {
-            always {
-                echo 'Pipeline finished !'
+    post{
+        always{
+            echo 'Pipeline finished !'
             }       
         }
     }
