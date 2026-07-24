@@ -2,6 +2,10 @@ pipeline {
     agent any
     environment {
         DOCKERHUB_USER = 'nyamzz' 
+        NAMESPACE_DEV = 'dev'
+        NAMESPACE_QA = 'qa'
+        NAMESPACE_STAGING = 'staging'
+        NAMESPACE_PROD = 'prod'
     }
 
     stages {
@@ -33,6 +37,28 @@ pipeline {
 
                     sh 'helm upgrade --install movie-service ./charts -f values-movie.yaml -n dev'
                     sh 'helm upgrade --install cast-service ./charts -f values-cast.yaml -n dev'
+                }
+            }
+        }
+
+        stage("Deploy to PROD"){
+            when{
+                branch 'main'
+            }
+            steps{
+                input(
+                    message: "Deploy to Production?", 
+                    ok: "Deploy"
+                )
+                script{
+                    echo 'deploying to PROD environment...'
+                    sh "kubectl apply -f secrets-movie.yaml -n ${NAMESPACE_PROD}"
+                    sh "kubectl apply -f secrets-cast.yaml -n ${NAMESPACE_PROD}"
+                    sh "kubectl apply -f statefulset-moviedb.yaml -n ${NAMESPACE_PROD}"
+                    sh "kubectl apply -f statefulset-castdb.yaml -n ${NAMESPACE_PROD}"
+
+                    sh "helm upgrade --install movie-service ./charts -f values-movie.yaml -n ${NAMESPACE_PROD}"
+                    sh "helm upgrade --install cast-service ./charts -f values-cast.yaml -n ${NAMESPACE_PROD}"
                 }
             }
         }
