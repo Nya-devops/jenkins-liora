@@ -29,24 +29,55 @@ pipeline {
         stage("Deploy to DEV"){
             steps{
                 script{
-                    echo 'deploying to DEV environment...'
-                    sh 'kubectl apply -f secrets-movie.yaml -n dev'
-                    sh 'kubectl apply -f secrets-cast.yaml -n dev'
-                    sh 'kubectl apply -f statefulset-moviedb.yaml -n dev'
-                    sh 'kubectl apply -f statefulset-castdb.yaml -n dev'
+                    echo 'Deploying to DEV environment...'
+                    sh "kubectl apply -f secrets-movie.yaml -n ${NAMESPACE_DEV}"
+                    sh "kubectl apply -f secrets-cast.yaml -n ${NAMESPACE_DEV}"
+                    sh "kubectl apply -f statefulset-moviedb.yaml -n ${NAMESPACE_DEV}"
+                    sh "kubectl apply -f statefulset-castdb.yaml -n ${NAMESPACE_DEV}"
 
-                    sh 'helm upgrade --install movie-service ./charts -f values-movie.yaml -n dev'
-                    sh 'helm upgrade --install cast-service ./charts -f values-cast.yaml -n dev'
+                    sh "helm upgrade --install movie-service ./charts -f values-movie.yaml -n ${NAMESPACE_DEV}"
+                    sh "helm upgrade --install cast-service ./charts -f values-cast.yaml -n ${NAMESPACE_DEV}"
                 }
             }
         }
 
+        stage("Deploy to QA"){
+            steps{
+                script{
+                    echo 'Deploying to QA environment...'
+                    sh "kubectl apply -f secrets-movie.yaml -n ${NAMESPACE_QA}"
+                    sh "kubectl apply -f secrets-cast.yaml -n ${NAMESPACE_QA}"
+                    sh "kubectl apply -f statefulset-moviedb.yaml -n ${NAMESPACE_QA}"
+                    sh "kubectl apply -f statefulset-castdb.yaml -n ${NAMESPACE_QA}"
+
+                    sh "helm upgrade --install movie-service ./charts -f values-movie.yaml -n ${NAMESPACE_QA}"
+                    sh "helm upgrade --install cast-service ./charts -f values-cast.yaml -n ${NAMESPACE_QA}"
+                }
+            }
+        }
+
+        stage("Deploy to STAGING"){
+            steps{
+                script{
+                    echo 'Deploying to STAGING environment...'
+                    sh "kubectl apply -f secrets-movie.yaml -n ${NAMESPACE_STAGING}"
+                    sh "kubectl apply -f secrets-cast.yaml -n ${NAMESPACE_STAGING}"
+                    sh "kubectl apply -f statefulset-moviedb.yaml -n ${NAMESPACE_STAGING}"
+                    sh "kubectl apply -f statefulset-castdb.yaml -n ${NAMESPACE_STAGING}"
+
+                    sh "helm upgrade --install movie-service ./charts -f values-movie.yaml -n ${NAMESPACE_STAGING}"
+                    sh "helm upgrade --install cast-service ./charts -f values-cast.yaml -n ${NAMESPACE_STAGING}"
+                }
+            }
+        }
+
+        
         stage("Deploy to PROD"){
             when{
                 branch 'main'
             }
             input{
-                message "Press OK to continue deployment to Production" 
+                message "Press PROCEED to continue deployment to Production" 
             }   
             steps{
                 script{
@@ -65,7 +96,7 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline finished !'
+            echo 'Pipeline finished, thanks for your input !'
         }       
     }
 }
