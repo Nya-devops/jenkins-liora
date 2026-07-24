@@ -45,13 +45,12 @@ pipeline {
             when{
                 branch 'main'
             }
+            input{
+                message "Press OK to continue deployment to Production" 
+            }   
             steps{
-                input(
-                    message: "Deploy to Production?", 
-                    ok: "Deploy"
-                )
                 script{
-                    echo 'deploying to PROD environment...'
+                    echo 'Ok: Deploying to PROD environment...'
                     sh "kubectl apply -f secrets-movie.yaml -n ${NAMESPACE_PROD}"
                     sh "kubectl apply -f secrets-cast.yaml -n ${NAMESPACE_PROD}"
                     sh "kubectl apply -f statefulset-moviedb.yaml -n ${NAMESPACE_PROD}"
@@ -61,6 +60,12 @@ pipeline {
                     sh "helm upgrade --install cast-service ./charts -f values-cast.yaml -n ${NAMESPACE_PROD}"
                 }
             }
+        }
+
+        post {
+            always {
+                echo 'Pipeline finished !'
+            }       
         }
     }
 }
