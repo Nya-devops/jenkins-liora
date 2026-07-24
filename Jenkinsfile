@@ -12,8 +12,7 @@ pipeline {
         stage("Build and Push"){
             steps{
                 script{
-                    echo "BRANCH_NAME is: ${env.BRANCH_NAME}"
-                    echo 'building the docker images...'
+                    echo 'Building the docker images...'
                     sh "docker build -t ${DOCKERHUB_USER}/movie-service:1.0.0 ./movie-service"
                     sh "docker build -t ${DOCKERHUB_USER}/cast-service:1.0.0 ./cast-service"
 
@@ -81,7 +80,7 @@ pipeline {
             }   
             steps{
                 script{
-                    echo 'Ok: Deploying to PROD environment...'
+                    echo 'OK: Deploying to Production environment...'
                     sh "kubectl apply -f secrets-movie.yaml -n ${NAMESPACE_PROD}"
                     sh "kubectl apply -f secrets-cast.yaml -n ${NAMESPACE_PROD}"
                     sh "kubectl apply -f statefulset-moviedb.yaml -n ${NAMESPACE_PROD}"
