@@ -38,7 +38,7 @@ spec:
               containerPort: 8000
               protocol: TCP
           env:
-          {{- range $key, $value := .Values.env }}
+          {{- range $key, $value := .Values.env }}    #  Range over the env map and create an env var for each key/value pair.
              - name: {{ $key }}
                value: {{ $value | quote }}
           {{- end }}
@@ -46,12 +46,12 @@ spec:
             httpGet:
               path: {{ .Values.probePath }}
               port: http
-            initialDelaySeconds: 5
+            initialDelaySeconds: 5                  # Implement 5 second delay before checking liveness to avoid false negatives during startup.
           readinessProbe:
             httpGet:
               path: {{ .Values.probePath }}
               port: http
-            initialDelaySeconds: 5
+            initialDelaySeconds: 5                  # Implement 5 second delay before checking readiness to avoid false negatives during startup.
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

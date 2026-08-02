@@ -22,7 +22,7 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: secrets-movie
+                  name: secrets-movie     # The secret name must match the name of the secret created in the secrets-movie.yaml file.
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -35,16 +35,16 @@ spec:
                   name: secrets-movie
                   key: POSTGRES_DB
           ports:
-            - containerPort: 5432     # from Postgred documentation
+            - containerPort: 5432     # from Postgres documentation
               protocol: TCP
           volumeMounts:
-            - name: moviedb-pvc
+            - name: moviedb-pvc   #PVC name must match the volumeMount name in the volumeClaimTemplates below.
               mountPath: /var/lib/postgresql/data/     
   volumeClaimTemplates:
   - metadata:
-      name: moviedb-pvc
+      name: moviedb-pvc       #PVC name must match the volumeMount name above.
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: [ "ReadWriteOnce" ]    # ReadWriteOnce is the only access mode supported by AWS EBS volumes.
       resources:
         requests:
           storage: 1Gi

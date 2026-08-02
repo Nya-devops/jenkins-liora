@@ -16,13 +16,13 @@ spec:
         app: cast-db
     spec:
       containers:
-        - image: postgres:12.1-alpine
+        - image: postgres:12.1-alpine      
           name: cast-db
           env:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: secrets-cast
+                  name: secrets-cast     # The secret name must match the name of the secret created in the secrets-cast.yaml file.
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -32,19 +32,19 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: secrets-cast
+                  name: secrets-cast    
                   key: POSTGRES_DB
           ports:
             - containerPort: 5432     # from Postgres documentation
               protocol: TCP
           volumeMounts:
-            - name: castdb-pvc
+            - name: castdb-pvc       # PVC name must match the volumeMount name in the volumeClaimTemplates below.
               mountPath: /var/lib/postgresql/data/     
   volumeClaimTemplates:
   - metadata:
-      name: castdb-pvc
+      name: castdb-pvc       # PVC name must match the volumeMount name above.
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: [ "ReadWriteOnce" ]    # ReadWriteOnce is the only access mode supported by AWS EBS volumes.
       resources:
         requests:
           storage: 1Gi
